@@ -230,7 +230,9 @@ function setupSmartFill() {
     const [blockId, fieldType, dayStr] = parts;
     const dayNum = parseInt(dayStr);
     if (isNaN(dayNum)) return;
-    if (fieldType !== 'ai' && fieldType !== 'po') return;
+    
+    // Allow all four field types: ai, ao, pi, po
+    if (!['ai', 'ao', 'pi', 'po'].includes(fieldType)) return;
     if (input.value && input.value.trim() !== "") return;
     
     // get proper year/month for this block
@@ -240,12 +242,19 @@ function setupSmartFill() {
     const date = new Date(year, month, dayNum);
     if (date.getDay() === 0) return; // skip Sunday
     
-    const defaultValue = fieldType === 'ai' ? "08:00" : "17:00";
+    // Set default time based on field type
+    let defaultValue;
+    switch (fieldType) {
+      case 'ai': defaultValue = "08:00"; break;
+      case 'ao': defaultValue = "11:30"; break;
+      case 'pi': defaultValue = "12:00"; break;
+      case 'po': defaultValue = "17:00"; break;
+      default: return;
+    }
     input.value = defaultValue;
     input.dispatchEvent(new Event('input', { bubbles: true }));
   }, true);
 }
-
 // ----- persistence (localStorage) -----
 function saveToStorage() {
   const config = {
